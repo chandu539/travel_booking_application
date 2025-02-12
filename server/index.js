@@ -10,23 +10,20 @@ const resolvers = require("./resolvers");
 const app = express();
 app.use(cors());
 
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("MongoDB Connection Error:", err));
+
 const server = new ApolloServer({ typeDefs, resolvers });
 
 async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
-
+  
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}/graphql`));
 }
 
-// Connect to MongoDB and start the server
-mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("MongoDB Connected Successfully");
-    startServer();
-  })
-  .catch((err) => console.error("MongoDB Connection Error:", err));
-
-module.exports = app; // Required for Vercel deployment
+startServer();
